@@ -1,104 +1,81 @@
-import { createStore } from 'redux';
+import {
+  ADD_TODO,
+  MARK_TODO_COMPLETE,
+  EDIT_TODO,
+  DELETE_TODO,
+} from '../redux/actionTypes'; // Update the path to actionTypes.js
 
-export const ADD_TODO = 'ADD_TODO';
-export const TOGGLE_TODO = 'TOGGLE_TODO';
-export const DELETE_TODO = 'DELETE_TODO';
-export const EDIT_TODO = 'EDIT_TODO';
-
+// Define the initial state for your todo list
 const initialState = {
-  todos: [
-    {
-      id: 1,
-      title: 'Buy groceries',
-      description: 'Milk, eggs, bread, and cheese',
-      deadline: '2023-09-07',
-      completed: false,
-    },
-    {
-      id: 2,
-      title: 'Finish project',
-      description: 'Complete all the remaining tasks',
-      deadline: '2023-09-10',
-      completed: false,
-    },
-    {
-      id: 3,
-      title: 'Go for a holiday',
-      description: 'Reside in Nassau, Bahamas',
-      deadline: '2023-10-12',
-      completed: false,
-    },
+  todo: [
+    // Sample todo items with initial properties
+    { id: 1, text: 'Buy milk', completed: false },
+    { id: 2, text: 'Eat bread', completed: true },
+    { id: 3, text: 'Go to the gym', completed: true },
+    { id: 4, text: 'Go to the movies', completed: false },
+    { id: 5, text: 'Go to the park', completed: true },
+    { id: 6, text: 'Go to the beach', completed: false },
   ],
 };
 
-const reducer = (state = initialState, action) => {
+// Define the todoReducer, which handles actions related to the todo list
+export const todoReducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD_TODO:
-      // Handle ADD_TODO action
-      if (!action.payload.title || !action.payload.description || !action.payload.deadline) {
-        return state; // Validation failed, return the current state
-      }
-
-      const newTodo = {
-        id: state.todos.length + 1,
-        title: action.payload.title,
-        description: action.payload.description,
-        deadline: action.payload.deadline,
-        completed: false,
-      };
-
+      // When the action type is 'ADD_TODO', create a new state object
       return {
         ...state,
-        todos: [...state.todos, newTodo],
+        // Update the 'todo' array by adding a new todo item
+        todo: [
+          ...state.todo,
+          {
+            id: action.payload.id,
+            text: action.payload.title, // Use 'title' from the payload
+            completed: action.payload.completed,
+          },
+        ],
       };
-
-    case TOGGLE_TODO:
-      // Handle TOGGLE_TODO action
-      const updatedTodosToggle = state.todos.map((todo) =>
-        todo.id === action.payload.id
-          ? { ...todo, completed: !todo.completed }
-          : todo
-      );
-
+    case MARK_TODO_COMPLETE:
+      // When the action type is 'MARK_TODO_COMPLETE', create a new state object
       return {
         ...state,
-        todos: updatedTodosToggle,
-      };
-
-    case EDIT_TODO:
-      // Handle EDIT_TODO action
-      const updatedTodosEdit = state.todos.map((todo) =>
-        todo.id === action.payload.id
-          ? {
+        // Update the 'todo' array by toggling the 'completed' property
+        todo: state.todo.map((todo) => {
+          if (todo.id === action.payload) {
+            // If the todo item matches the action payload, toggle 'completed'
+            return {
               ...todo,
-              title: action.payload.title || todo.title,
-              description: action.payload.description || todo.description,
-              deadline: action.payload.deadline || todo.deadline,
-            }
-          : todo
-      );
-
+              completed: !todo.completed,
+            };
+          }
+          return todo;
+        }),
+      };
+    case EDIT_TODO:
+      // When the action type is 'EDIT_TODO', create a new state object
       return {
         ...state,
-        todos: updatedTodosEdit,
+        // Update the 'todo' array by mapping and editing the todo item with matching id
+        todo: state.todo.map((todo) => {
+          if (todo.id === action.payload.id) {
+            // If the todo item matches the action payload id, update 'text'
+            return {
+              ...todo,
+              text: action.payload.title, // Use 'title' from the payload
+            };
+          }
+          return todo;
+        }),
       };
-
     case DELETE_TODO:
-      // Handle DELETE_TODO action
-      const updatedTodosDelete = state.todos.filter(
-        (todo) => todo.id !== action.payload.id
-      );
-
+      // When the action type is 'DELETE_TODO', create a new state object
       return {
         ...state,
-        todos: updatedTodosDelete,
+        // Update the 'todo' array by filtering out the todo item with matching id
+        todo: state.todo.filter((todo) => todo.id !== action.payload),
       };
-
     default:
+      // If the action type doesn't match any defined cases, return the current state
       return state;
   }
 };
-
-const store = createStore(reducer);
-
-export default store;
