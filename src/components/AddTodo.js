@@ -1,45 +1,57 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { ADD_TODO } from '../../redux/reducers/todoReducer'; 
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { addTodoAction } from '../redux/actions';
 
+class AddTodo extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      todoText: '', // Initialize the input field value
+    };
+  }
 
-
-const AddTodo = () => {
-  const [todoTitle, setTodoTitle] = useState('');
-  const dispatch = useDispatch();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (todoTitle.trim() !== '') {
-      // Dispatch the ADD_TODO action with the todo title
-      dispatch({
-        type: ADD_TODO,
-        payload: {
-          title: todoTitle,
-          description: '', // Add the relevant description here
-          deadline: '', // Add the relevant deadline here
-        },
-      });
-
-      // Clear the input field
-      setTodoTitle('');
-    }
-  };
-
-  return (
-    <div className="add-todo">
-      <form onSubmit={handleSubmit}>
+  render() {
+    return (
+      <div>
         <input
           type="text"
-          placeholder="Enter your task.."
-          value={todoTitle}
-          onChange={(e) => setTodoTitle(e.target.value)}
+          placeholder="Enter your task"
+          value={this.state.todoText}
+          onChange={this.handleInputChange}
         />
-        <button type="submit">Add Task</button>
-      </form>
-    </div>
-  );
+        <button onClick={this.handleAddTodo}>Add</button>
+      </div>
+    );
+  }
+
+  // Define event handler for input change
+  handleInputChange = (e) => {
+    this.setState({ todoText: e.target.value });
+  };
+
+  // Define event handler for adding a todo
+  handleAddTodo = () => {
+    // Get the todo text from the input field
+    const todo = this.state.todoText;
+
+    // Dispatch an action to add the todo to the Redux store
+    this.props.addTodoAction(todo);
+
+    // Clear the input field after adding the todo
+    this.setState({ todoText: '' });
+  };
+}
+
+const mapStateToProps = (state) => {
+  return {
+    // Map any relevant state to props here (if needed)
+  };
 };
 
-export default AddTodo;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addTodoAction: (title) => dispatch(addTodoAction(title)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddTodo);
