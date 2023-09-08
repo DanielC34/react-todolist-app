@@ -1,75 +1,47 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { markTodoComplete, editTodo, deleteTodo } from '../redux/actions';
+// Import necessary libraries and dependencies
+import React from 'react';
 
-class TodoItem extends Component {
-  constructor(props) {
-    super(props);
-    // Initialize the component's state with isEditing set to false
-    // and updatedTitle set to the title of the passed-in todo item.
-    this.state = {
-      isEditing: false,
-      updatedTitle: this.props.todo.title,
-    };
-  }
+// Import the 'useDispatch' hook from 'react-redux' to access the Redux store's dispatch function
+import { useDispatch } from "react-redux";
 
-  // Function to toggle the 'isEditing' state when called.
-  handleEditToggle = () => {
-    this.setState({ isEditing: !this.state.isEditing });
-  };
+// Import the 'deleteTask' action creator from the 'taskSlice' Redux slice
+import { deleteTask } from "../redux/taskSlice";
 
-  // Function to update the 'updatedTitle' state when the input field value changes.
-  handleTitleChange = (e) => {
-    this.setState({ updatedTitle: e.target.value });
-  };
+// Define the 'TodoItem' component
+const TodoItem = ({ id, title }) => {
+    // Access the 'dispatch' function from the Redux store
+	const dispatch = useDispatch();
 
-  // Function to handle the submission of edited todo item.
-  handleEditSubmit = () => {
-    const { todo, editTodo } = this.props;
-    // Call the 'editTodo' action with the todo ID and the updated title.
-    editTodo(todo.id, this.state.updatedTitle);
-    // Set 'isEditing' back to false after submission.
-    this.setState({ isEditing: false });
-  };
+    // Define a function 'removeTask' to handle task deletion
+	const removeTask = () => {
+		// Dispatch the 'deleteTask' action with the task's id as payload
+		dispatch(
+			deleteTask({
+				id: id
+			})
+		)
+	}
 
-  render() {
-    const { todo, markTodoComplete, deleteTodo } = this.props;
-    const { isEditing, updatedTitle } = this.state;
-
-    return (
-      <div className="todo-item">
-        {isEditing ? (
-          <div className="edit-todo">
-            <input
-              type="text"
-              value={updatedTitle}
-              onChange={this.handleTitleChange}
-            />
-            <button onClick={this.handleEditSubmit}>Save</button>
-          </div>
-        ) : (
-          <div className={`todo ${todo.completed ? 'completed' : ''}`}>
-            <span>{todo.title}</span>
-            <div className="actions">
-              <button onClick={() => markTodoComplete(todo.id)}>
-                {todo.completed ? 'Undo' : 'Complete'}
-              </button>
-              <button onClick={this.handleEditToggle}>Edit</button>
-              <button onClick={() => deleteTodo(todo.id)}>Delete</button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-}
-
-// Defines the actions to be used as props for this component.
-const mapDispatchToProps = {
-  markTodoComplete,
-  editTodo,
-  deleteTodo,
+    // Render the component's UI
+	return (
+		<li className="task-item">
+			<div>
+				{title}
+			</div>
+			<div>
+                {/* Button to delete the task when clicked */}
+				<button
+                    className="remove-task-button"
+                    onClick={() => {
+                        removeTask();
+                    }}
+                >
+                    Delete
+                </button>
+			</div>
+		</li>
+	);
 };
 
-// Connect the component to the Redux store, providing it with the specified actions.
-export default connect(null, mapDispatchToProps)(TodoItem);
+// Export the 'TodoItem' component
+export default TodoItem;
